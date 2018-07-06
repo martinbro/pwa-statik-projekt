@@ -3,7 +3,7 @@
       <p>Bezier.vue</p>
       <svg  viewBox="0 -100 200 100" preserveAspectRatio="none">
             
-            <circle v-for="(q,index) in Q" v-bind:cx="Q[index][0]" v-bind:cy="-q[1]" r="0.5" stroke="orange" stroke-width="0.1" fill="none"></circle>
+            <circle v-for="q in Q" :cx="q[0]" :cy="-q[1]" r="0.5" stroke="orange" stroke-width="0.1" fill="none" />
             
         <path  :d = "cubicBezier(Q)" fill="none" stroke="red" stroke-width="0.1" />
         <path  :d = "cubicBezierLiniesegment(Qlin)" fill="none" stroke="black" stroke-width="0.1" />
@@ -111,8 +111,6 @@ export default {
         const kurve1 = `M ${p[0][0]},${-1*p[0][1]} C${p1x},${-1*p1y} ${p2x},${-1*p2y} ${p[1][0]},${-1*p[1][1]} `
         
         return kurve1 
-
-      
       },
   }
   
