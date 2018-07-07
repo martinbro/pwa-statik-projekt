@@ -3,9 +3,9 @@
   <div class="Snitkraft">
     <p>Snitkræfter</p>
     <svg width="700" height="700" viewBox="0 -50 100 100">
-       <path id="punktlast" :d = "punktlasterSVG" fill="yellow" stroke="purple" stroke-width="0.1" />
+       <path id="punktlast" :d = "punktlasterSVG()" fill="yellow" stroke="purple" stroke-width="0.1" />
        <path id="bjaelke" d = "M0,0 L100,0" fill="none" stroke="black" stroke-width="1" />
-       <text class="small" v-for="(p,index) in arr" :x="p.x" :y="p.val" fill=red>F{{index+1}}</text>
+       <text class="small" v-for="(p,index) in arr" :x="p.x" :y="p.y" fill=red>F{{index+1}}</text>
     </svg>
   </div>
 </template>
@@ -25,33 +25,28 @@ export default {
   props: {
   },
   computed:{
-    punktlasterSVG:function (){
-      //const dat = store.state.punktlast
-      var str = "M0,0"
-      var vektorsum=0
-      this.arr = this.reaktanter.concat(this.punktlaster)
-      this.arr.sort((a,b)=>{return a.x-b.x })
-      this.arr.forEach((data,index) => {
-        //console.log(data,index);
-        //vektorsum += -data.val
-        data.val = vektorsum
-        if (index<1) {
-          str += `M${data.x},0 H${data.val} `   
-        } else {
-          str += `H${data.x}  V${vektorsum} `   
-        }
-        
-        //punktlastText(data)
+    getpunktlaster: function () {
+      this.arr.splice(0)
+      this.reaktanter.forEach((data)=>{
+        this.arr.push({x:data.x,y:data.val,lasttype:"punktlast"})
       })
-      // if(this.punktlaster.length >2){
+      this.punktlaster.forEach((data)=>{
+        this.arr.push({x:data.x,y:data.val,lasttype:"punktlast"})
+      })
+      //console.log(this.arr);
+      
+      //this.arr = this.reaktanter.concat(this.punktlaster)
+      this.arr.sort((a,b)=>{return a.x-b.x })
+     
+      this.arr.forEach((data,index)=>{
         
-        //   this.punktlaster.sort((a,b)=>{return a.x-b.x });
-        
-      // }
-       // console.log(str);
-      return str +" H0"
-    }
-    
+        if (index>0) {
+        data.y += this.arr[index-1].y
+        } 
+      })
+      return this.arr
+    },
+
 
 
     
@@ -59,6 +54,19 @@ export default {
 
   },
   methods:{
+        punktlasterSVG:function (){
+      var str = "M0,0"
+      this.getpunktlaster.forEach((data,index) => {
+        //console.log('vektorsum',vektorsum,index);
+        //data.val = vektorsum
+        if (index<1) {
+          str += `M${data.x},0 V${-data.y} `   
+        } else {
+          str += ` H${data.x}  V${-data.y} `   
+        }
+      })
+       return str +" H0"
+    },
     punktlastText:function (data){
       
       return ""

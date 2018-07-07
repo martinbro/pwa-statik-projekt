@@ -38,7 +38,7 @@ export default {
         const dy = Math.sign(data.val)*2
         str += ` M${data.x},${data.val} L${data.x},0 l-0.5,${dy} 1,0 -0.5,${-dy}`   
       })
-      console.log(str);
+     // console.log(str);
       
        return str
     },
