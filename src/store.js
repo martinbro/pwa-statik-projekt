@@ -15,8 +15,11 @@ export default new Vuex.Store({
     reaktanter:[
       {navn:"R1",val:0,x:0},
       {navn:"R2",val:0,x:100},
-    ]
-   // sortedpunktlast:[],
+    ],
+    snitkraftsArr:[],
+    snitkraftsnulpunkter:[],
+
+    momenter:[],
   },
   getters: {
     // getpunktlast: state => {
@@ -36,15 +39,18 @@ export default new Vuex.Store({
     increment: state => state.count++,
     decrement: state => state.count--,
 
-    addPunktlaster:(state,obj)=>{state.punktlaster.push(obj)},
+    addPunktlaster:(state,obj)=>{
+      //indlæser punktlasterne
+      state.punktlaster.push(obj)
+    },
     updateR:(state,obj)=>{
       state.reaktanter[0].val = obj.R1val
       state.reaktanter[1].val = obj.R2val
-
-      //console.log(state.reaktanter[0].val);
-      // console.log("her",state.reaktanter[0].val, ", ",obj.R1val);
-      
-    }
+    },
+    updateSnitkraft:(state,obj)=>{
+      state.snitkraftsArr.splice(0)
+      state.snitkraftsArr.push(obj)
+    },
   },
   actions: {
 

@@ -33,17 +33,14 @@ export default {
       this.punktlaster.forEach((data)=>{
         this.arr.push({x:data.x,y:data.val,lasttype:"punktlast"})
       })
-      //console.log(this.arr);
-      
-      //this.arr = this.reaktanter.concat(this.punktlaster)
       this.arr.sort((a,b)=>{return a.x-b.x })
-     
       this.arr.forEach((data,index)=>{
         
         if (index>0) {
         data.y += this.arr[index-1].y
         } 
       })
+      store.commit('updateSnitkraft',this.arr)
       return this.arr
     },
 
@@ -57,8 +54,7 @@ export default {
         punktlasterSVG:function (){
       var str = "M0,0"
       this.getpunktlaster.forEach((data,index) => {
-        //console.log('vektorsum',vektorsum,index);
-        //data.val = vektorsum
+
         if (index<1) {
           str += `M${data.x},0 V${-data.y} `   
         } else {
@@ -68,6 +64,7 @@ export default {
        return str +" H0"
     },
     punktlastText:function (data){
+      
       
       return ""
     },
