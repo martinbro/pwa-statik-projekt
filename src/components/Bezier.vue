@@ -36,7 +36,7 @@ export default {
    data: function() {
      return {
         punktlaster: store.state.punktlaster,
-        reaktanter: store.state.reaktanter,
+        // reaktanter: store.getters.getReaktanter,
         //snitkrafter: store.getters.getSnitkrafter,
         Q: [[0,0],
             [5,39.37250],
@@ -134,7 +134,7 @@ export default {
     getSnitkrafter: function () {
       const arr=[]
       
-      this.reaktanter.forEach((data)=>{
+      store.getters.getReaktanter.forEach((data)=>{
         arr.push({x:data.x,y:data.val,lasttype:"punktlast"})
       })
       this.punktlaster.forEach((data)=>{
