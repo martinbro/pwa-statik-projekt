@@ -5,7 +5,7 @@
     <svg width="700" height="700" viewBox="0 -50 100 100">
        <path id="punktlast" :d = "punktlasterSVG()" fill="yellow" stroke="purple" stroke-width="0.1" />
        <path id="bjaelke" d = "M0,0 L100,0" fill="none" stroke="black" stroke-width="1" />
-       <text class="small" v-for="(p,index) in arr" :x="p.x" :y="p.y" fill=red>F{{index+1}}</text>
+       <text class="small" v-for="(p,index) in arr" :x="p.x" :y="-p.y" fill=red>{{p.y}}</text>
     </svg>
   </div>
 </template>
@@ -18,7 +18,7 @@ export default {
   data: function() {
     return {
       punktlaster: store.state.punktlaster,
-      reaktanter: store.state.reaktanter,
+      //reaktanter: store.state.reaktanter,
       arr:[]
     }
   },
@@ -27,7 +27,7 @@ export default {
   computed:{
     getpunktlaster: function () {
       this.arr.splice(0)
-      this.reaktanter.forEach((data)=>{
+      store.getters.getReaktanter.forEach((data)=>{
         this.arr.push({x:data.x,y:data.val,lasttype:"punktlast"})
       })
       this.punktlaster.forEach((data)=>{
@@ -40,7 +40,8 @@ export default {
         data.y += this.arr[index-1].y
         } 
       })
-      store.commit('updateSnitkraft',this.arr)
+
+      //store.commit('updateSnitkraft',this.arr)
       return this.arr
     },
 

@@ -1,18 +1,9 @@
-
 <template>
   <div class="Last">
-    <p>Lastfordeling</p>
-     <p>
-    <button @click="increment">+</button>
-    <button @click="decrement">-</button>
-  </p>
+    <p>Diagram</p>
+ 
     <svg width="700" height="700" viewBox="0 -50 100 100">
-       <path id="bjaelke" d = "M0,0 L100,0" fill="none" stroke="black" stroke-width="1" />
-       <!--path id="punktlast" d = "M20,20 L20,0 l-0.5,2 1,0 -0.5,-2" fill="blue" stroke="blue" stroke-width="0.1" />
-       <!--path id="punktlast" :d = "punktlastF()" fill="red" stroke="red" stroke-width="0.1" /-->
-       <path id="punktlasterSVG" :d = "punktlasterSVG" fill="blue" stroke="blue" stroke-width="0.1" />
-       <path id="reaktanterSVG" :d = "reaktanterSVG" fill="red" stroke="red" stroke-width="0.1" />
-       <text class="small" v-for="p in punktlaster" :x="p.x" :y="p.val" fill=red>{{p.navn}}</text>
+    <slot></slot>
     </svg>
   </div>
 </template>
@@ -25,8 +16,7 @@ export default {
   data: function() {
     return {
       punktlaster: store.state.punktlaster,
-      reaktanter: store.getters.getReaktanter,
-      linjelaster: store.state.linjelaster,
+      reaktanter: store.state.reaktanter,
       L: store.state.L
     }
   },
@@ -43,20 +33,9 @@ export default {
       
        return str
     },
-    linjelasterSVG:function (){
-      var str = "M0,0"  
-      this.linjelast.forEach(data => {
-        const dy = Math.sign(data.val)*2
-        str += ` M${data.x},${data.val} L${data.x},0 l-0.5,${dy} 1,0 -0.5,${-dy}`   
-      })
-     // console.log(str);
-      
-       return str
-    },
-
     reaktanterSVG:function (){
       var str = "M0,0"  
-      store.getters.getReaktanter.forEach(data => {
+      this.reaktanter.forEach(data => {
         const dy = Math.sign(data.val)*2
         str += ` M${data.x},${data.val} L${data.x},0 l-0.5,${dy} 1,0 -0.5,${-dy}`   
       })
@@ -85,13 +64,9 @@ export default {
       store.commit('increment')
       store.commit('addPunktlaster',{navn:"F"+store.state.count,val:((Math.sign( Math.random()-0.7))*(Math.random()*40+7)),x:Math.random()*97})
       store.commit('updateR',this.beregnR )
-      console.log(store.getters.getReaktanter);
-      
     },
     decrement () {
-      store.commit('increment')
-      store.commit('addLinjelaster',{navn:"f"+store.state.count,val:-1,x0:40,x1:60})
-      console.log(store.getters.getReaktanter);
+    	store.commit('decrement')
     }
     
   }

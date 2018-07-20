@@ -1,6 +1,17 @@
 <template>
   <div class="bezier">
       <p>Bezier.vue</p>
+      <svg width="700" height="700" viewBox="0 -200 100 400" preserveAspectRatio="none">
+       <path id="bjaelke" d = "M0,0 L100,0" fill="none" stroke="black" stroke-width="1" />
+       <path id="punktlasterSVG" :d = "getSnitkrafterSVG" fill="none" stroke="blue" stroke-width="0.1" />
+       <!--path id="punktlast" d = "M20,20 L20,0 l-0.5,2 1,0 -0.5,-2" fill="blue" stroke="blue" stroke-width="0.1" />
+       <!--path id="punktlast" :d = "punktlastF()" fill="red" stroke="red" stroke-width="0.1" >
+       <path id="reaktanterSVG" :d = "reaktanterSVG" fill="red" stroke="red" stroke-width="0.1" />
+       <text class="small" v-for="p in punktlaster" :x="p.x" :y="p.val" fill=red>{{p.navn}}</text/-->
+    </svg>
+    <p>næste</p>
+
+    <div > <p> her: {{getSnitkrafterSVG}} </p></div>
       <svg  viewBox="0 -100 200 100" preserveAspectRatio="none">
             
             <circle v-for="q in Q" :cx="q[0]" :cy="-q[1]" r="0.5" stroke="orange" stroke-width="0.1" fill="none" />
@@ -16,24 +27,30 @@
 
 <script>
 import * as math from 'mathjs'
+import store from "@/store"
 export default {
   name: 'HelloWorld',
+  
   props: {
-  },
+    },
    data: function() {
-      return {
+     return {
+        punktlaster: store.state.punktlaster,
+        reaktanter: store.state.reaktanter,
+        //snitkrafter: store.getters.getSnitkrafter,
         Q: [[0,0],
             [5,39.37250],
             [20,39.74],
             [30,79.11]
         ],
         Q1: [[0,0],
-            [10,49.97],
-            [30,79.11]
+            [15,90],
+            [30,0]
         ],
+        
         Qlin: [
-          [5,39.37250,4.5395], //x0, f(x0), f´(x0)
-          [30,79.11, 10.077] ////x0, f(x0), f´(x0)
+          [0,0,3], //x0, f(x0), f´(x0)
+          [30,90, 3] ////x1, f(x1), f´(x1)
         ],
       
         // punkter: [
@@ -112,8 +129,44 @@ export default {
         
         return kurve1 
       },
+  },
+  computed:{
+    getSnitkrafter: function () {
+      const arr=[]
+      
+      this.reaktanter.forEach((data)=>{
+        arr.push({x:data.x,y:data.val,lasttype:"punktlast"})
+      })
+      this.punktlaster.forEach((data)=>{
+        arr.push({x:data.x,y:data.val,lasttype:"punktlast"})
+      })
+      arr.sort((a,b)=>{return a.x-b.x })
+
+       var sum = 0
+       arr.forEach((data,index)=>{
+         sum += data.y 
+        
+          arr[index].y=sum
+       })
+
+      return arr
+    },
+    getSnitkrafterSVG: function () {
+      const output=["M 0,0"]
+      var sumy = 0
+      const sk =this.getSnitkrafter
+
+      sk.forEach((data,index)=>{
+      if(index>0){
+        sumy = sumy + (data.x-sk[index-1].x)*sk[index-1].y/100*store.state.L
+        output.push(` L ${data.x},${-sumy}`)
+      }
+     
+
+    })
+      return output.join(' ')
+    }
   }
-  
 }
 </script>
 
