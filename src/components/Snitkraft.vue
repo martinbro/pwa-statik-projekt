@@ -1,6 +1,7 @@
 
 <template>
   <div class="Snitkraft">
+    <pre>{{getlaster}}</pre> 
     <p>Snitkræfter</p>
     <svg width="700" height="700" viewBox="0 -50 100 100">
        <path id="punktlast" :d = "punktlasterSVG()" fill="yellow" stroke="purple" stroke-width="0.1" />
@@ -18,6 +19,7 @@ export default {
   data: function() {
     return {
       punktlaster: store.state.punktlaster,
+      linjelaster: store.state.linjelaster,
       //reaktanter: store.state.reaktanter,
       arr:[]
     }
@@ -42,7 +44,52 @@ export default {
       })
 
       //store.commit('updateSnitkraft',this.arr)
+
       return this.arr
+
+    },
+    getlaster: function () {
+      const arr = []
+      const out =[]
+      //Reaktanter
+      store.getters.getReaktanter.forEach((data)=>{
+      arr.push({x:data.x,y:data.val,lasttype:"punktlast",navn:data.navn, svg:`H ${data.x} v ${data.val}`})
+      })
+      //punktlaster
+      this.punktlaster.forEach((data)=>{
+        arr.push({x:data.x,y:data.val,lasttype:"punktlast",navn:data.navn,svg:`H ${data.x} v ${data.val}`})
+      })
+      // //linielaster (nye endepunkter pkt tilføjes)
+      // this.linjelaster.forEach((data,index)=>{
+      //   arr.push({x:data.x0,y:0,lasttype:"linjelaststart",navn:data.navn,svg:"l"})
+      //   arr.push({x:data.x1,y:data.val*Math.abs(data.x1-data.x0),lasttype:"linjelastslut",navn:"",svg:})
+      // })
+
+      arr.sort((a,b)=>{return a.x-b.x })
+      // arr.forEach((pktlast)=>{
+      //   if (pktlast.x < linlast.x0 && pktlast.x < linlast.x1 ) {
+      //   }
+      // })
+
+      this.linjelaster.forEach((linlast)=>{
+        var flag1 = true
+        var flag2 = true
+        arr.forEach((pktlast,index)=>{
+          if (pktlast.x > linlast.x1 && flag2) {
+            arr.splice(index, 0,{x:linlast.x1,y:0,lasttype:"linjelaststop",navn:linlast.navn,svg:"l"} );
+  
+             flag2=false       
+          }
+          if (pktlast.x > linlast.x0 && flag1) {
+            arr.splice(index, 0,{x:linlast.x0,y:0,lasttype:"linjelaststart",navn:linlast.navn,svg:"l"} )
+              flag1=false       
+          }
+        })
+      })
+      
+
+      //store.commit('updateSnitkraft',this.arr)
+      return arr
     },
 
 

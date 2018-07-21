@@ -62,10 +62,8 @@ export default {
         arr.push({ x: data.x1, y: -data.val });
         // str += ` M${data.x0},0  V${data.val} H${data.x1} V0 `
       });
-      arr.sort((a, b) => {
-        return a.x - b.x;
-      });
-      console.log("sorteret: ", arr);
+      arr.sort((a, b) => {return a.x - b.x});
+      //console.log("sorteret: ", arr);
 
       arr.forEach(data => {
         str += ` H ${data.x} v${data.y}`;
@@ -116,13 +114,13 @@ export default {
       store.commit("addLinjelaster", {
         navn: "f" + store.state.count + "a",
         val: -1,
-        x0: 50,
-        x1: 90
+        x0: 10,
+        x1: 30
       });
       store.commit("addLinjelaster", {
         navn: "f" + store.state.count + "b",
         val: -1,
-        x0: 20,
+        x0: 50,
         x1: 80
       });
       console.log(store.getters.getReaktanter);

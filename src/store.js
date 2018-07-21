@@ -25,6 +25,7 @@ export default new Vuex.Store({
   getters: {
  
     getSumLast: state =>{
+      //formodenlig forældet
       var s = 0
       //if(state.punktlast.length>-1) 
       state.punktlaster.forEach(element => {
@@ -32,29 +33,116 @@ export default new Vuex.Store({
       })
       return s
     },
+
     getReaktanter: state =>{
       
       //finder R2 ved at tage moment om R1
       var sum = 0
       var sumLast = 0
-      const distR1 = state.reaktanter[0].x/100*state.L
+      const distR1 = state.reaktanter[0].x
       state.punktlaster.forEach(element => {
-        sum += element.val*(element.x/100*state.L-distR1)
+        sum += element.val*(element.x-distR1)
         sumLast += element.val
       });
       state.linjelaster.forEach(element =>{
         sumLast += Math.abs(element.x0 - element.x1)*element.val
-        sum += Math.abs(element.x0 - element.x1)*element.val*(((element.x0 + element.x1)/2)/100*state.L-distR1)
+        sum += Math.abs(element.x0 - element.x1)*element.val*(((element.x0 + element.x1)/2)-distR1)
 
       })
       //R2*L+(F1*x1+F2*x2+...)=0 <=>R2*L+sum=0 <=>
-      const r2=-sum/state.L 
+      const r2=-sum/100
       //R1+R2+F1+F2+...=0 <=>
       const r1= -(sumLast+r2)
      return [
-       {navn:"R1",val:r1,x:0},
-       {navn:"R2",val:r2,x:100}]
+       {navn:"R1",val:r1,x:state.reaktanter[0].x},
+       {navn:"R2",val:r2,x:state.reaktanter[1].x}]
       },
+    getAlleEnkeltkrafterSorteret: state =>{
+      
+      //finder R2 ved at tage moment om R1
+      var sum = 0
+      var sumLast = 0
+      const arr = []
+      const distR1 = state.reaktanter[0].x
+      state.punktlaster.forEach((element)=> {
+        arr.push(element)
+        sum += element.val*(element.x-distR1)
+        sumLast += element.val
+      });
+      state.linjelaster.forEach(element =>{
+        sumLast += Math.abs(element.x0 - element.x1)*element.val
+        sum += Math.abs(element.x0 - element.x1)*element.val*(((element.x0 + element.x1)/2)-distR1)
+      })
+      //R2*L+(F1*x1+F2*x2+...)=0 <=>R2*L+sum=0 <=>
+      const r2=-sum/100
+      //R1+R2+F1+F2+...=0 <=>
+      const r1= -(sumLast+r2)
+      arr.push( {navn:"R1", val:r1, x:state.reaktanter[0].x } )
+      arr.push( {navn:"R2",val:r2,x:state.reaktanter[1].x})
+      arr.sort((a, b) => {return a.x - b.x})
+     return arr
+    },
+
+    getLinielastAggregeret: state =>{
+      //kan udvides til ramps
+      const arr = []
+      const out = []
+      var sumy = 0
+      
+      state.linjelaster.forEach((linlast,index) =>{
+        //indlæser alle hendelser/ændringer
+        arr.push({x:linlast.x0, y:linlast.val, nr:index})
+        arr.push({x:linlast.x1, y:-linlast.val, nr:index})
+      })
+      //sortere 
+      arr.sort((a, b) => {return a.x - b.x})
+      arr.forEach((data,index) =>{
+        sumy += data.y
+        if(index>0){
+          if(arr[index-1].x == data.x){
+            out.pop()
+          } 
+        } 
+        out.push({x:data.x, y:sumy, nr:data.nr})
+      })
+      return out
+    },
+    getSnitkraftAggregeret: (state, getters) =>{
+      //laver først et linjeelement
+      const linielast = getters.getLinielastAggregeret
+      const enkeltKraft = getters.getAlleEnkeltkrafterSorteret
+      const arr = []
+      const param = {y:0,dydx:0,xgl:0}
+     
+
+      // Enkeltkrafter indlæses 
+      enkeltKraft.forEach(kraft =>{
+        arr.push({x:kraft.x,yleft:0, y:kraft.val , dydx:0, type:"E"})
+      })
+
+      linielast.forEach(elemen => {
+
+        arr.push({x:elemen.x,yleft:0, y:0, dydx:elemen.y, type:"L"})
+      })
+      
+      //sortere 
+      arr.sort((a, b) => {return a.x - b.x})
+      
+      //linieelemet beregnes
+      arr.forEach((data,index) => {
+        //ysum += data.y
+        if(data.type == "L"){
+          param.dydx = data.dydx
+        }
+        if(0<index){
+          //opdatere
+          data.dydx = param.dydx
+          data.yleft = arr[index-1].y + arr[index-1].dydx*(data.x-arr[index-1].x)
+          data.y = arr[index-1].y + data.y + arr[index-1].dydx*(data.x-arr[index-1].x)
+        }
+      })
+      return arr
+    },
   },
   mutations: {
     increment: state => state.count++,
