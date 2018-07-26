@@ -12,10 +12,11 @@
     <p>næste</p>
 
     <div > <p> her: {{getSnitkrafterSVG}} </p></div>
-      <svg  viewBox="0 -100 200 100" preserveAspectRatio="none">
+      <svg  viewBox="0 -2 4 4" preserveAspectRatio="none">
             
             <circle v-for="q in Q" :cx="q[0]" :cy="-q[1]" r="0.5" stroke="orange" stroke-width="0.1" fill="none" />
             
+        <path  :d = "quadradicBezierLiniesegment(Q1lin)" fill="none" stroke="green" stroke-width="0.1" />
         <path  :d = "cubicBezier(Q)" fill="none" stroke="red" stroke-width="0.1" />
         <path  :d = "cubicBezierLiniesegment(Qlin)" fill="none" stroke="black" stroke-width="0.1" />
         <path  :d = "quadraticBezier(Q1)" fill="none" stroke="blue" stroke-width="0.1" />
@@ -49,8 +50,12 @@ export default {
         ],
         
         Qlin: [
-          [0,0,3], //x0, f(x0), f´(x0)
-          [30,90, 3] ////x1, f(x1), f´(x1)
+          [10,38,-1], //x0, f(x0), f´(x0)
+          [30,19, -1] ////x1, f(x1), f´(x1)
+        ],
+        Q1lin: [
+          [2,0,0], //x0, f(x0), f´(x0)
+          [2,-2] //x1, f(x1)
         ],
       
         // punkter: [
@@ -77,6 +82,16 @@ export default {
         
         return kurve 
 
+      },
+      quadradicBezierLiniesegment: function(p) {
+        const x0 = p[0][0]
+        const y0 = p[0][1]
+        const ydot = p[0][2]
+        const x2 = p[1][0]
+        const y2 = p[1][1]
+        const y1 = 0.5*(x2-x0)*ydot + y0
+        const x1 = 0.5*(x2-x0)*1 + x0
+       return ` M ${x0} ${-y0} Q  ${x1} ${-y1} , ${x2} ${-y2}`      
       },
     cubicBezier: function(Q) {
         const s1 = 0

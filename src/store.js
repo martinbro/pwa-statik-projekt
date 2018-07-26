@@ -35,7 +35,7 @@ export default new Vuex.Store({
     },
 
     getReaktanter: state =>{
-      
+      //formodenlig forældet
       //finder R2 ved at tage moment om R1
       var sum = 0
       var sumLast = 0
@@ -58,7 +58,6 @@ export default new Vuex.Store({
        {navn:"R2",val:r2,x:state.reaktanter[1].x}]
       },
     getAlleEnkeltkrafterSorteret: state =>{
-      
       //finder R2 ved at tage moment om R1
       var sum = 0
       var sumLast = 0
@@ -107,12 +106,14 @@ export default new Vuex.Store({
       })
       return out
     },
+
     getSnitkraftAggregeret: (state, getters) =>{
       //laver først et linjeelement
       const linielast = getters.getLinielastAggregeret
       const enkeltKraft = getters.getAlleEnkeltkrafterSorteret
       const arr = []
-      const param = {y:0,dydx:0,xgl:0}
+      const out = []
+      const param = {dydx:0}
      
 
       // Enkeltkrafter indlæses 
@@ -122,7 +123,7 @@ export default new Vuex.Store({
 
       linielast.forEach(elemen => {
 
-        arr.push({x:elemen.x,yleft:0, y:0, dydx:elemen.y, type:"L"})
+        arr.push({x:elemen.x, yleft:0, y:0, dydx:elemen.y, type:"L"})
       })
       
       //sortere 
@@ -130,18 +131,54 @@ export default new Vuex.Store({
       
       //linieelemet beregnes
       arr.forEach((data,index) => {
-        //ysum += data.y
         if(data.type == "L"){
           param.dydx = data.dydx
         }
         if(0<index){
-          //opdatere
+          //opdatere linieelementet
           data.dydx = param.dydx
-          data.yleft = arr[index-1].y + arr[index-1].dydx*(data.x-arr[index-1].x)
+         // data.dydxleft = arr[index-1].dydx
+         
+
+           data.yleft = arr[index-1].y + arr[index-1].dydx*(data.x-arr[index-1].x)
+         
           data.y = arr[index-1].y + data.y + arr[index-1].dydx*(data.x-arr[index-1].x)
         }
+
       })
-      return arr
+      arr.forEach((data,index) => {
+        //kontrollerer for nulpunkter
+        out.push(data)
+        if ((index>0 && data.y*arr[index-1].y)<0 && data.x<100) {
+          console.log('Nulpunkt detekteret mellem ', arr[index-1].x, data.x, "index", index);
+          //finder nulpunkt
+          switch(data.type) {
+            case "L":
+            //dy/dx=f´(x) <=> (0-y(x-1)-0)=f´(x-1) * dx <=>
+              //console.log("Nulpunktet:",-arr[index-1].y/arr[index-1].dydx + arr[index-1].x);
+              param.nulpunkt= -arr[index-1].y/arr[index-1].dydx + arr[index-1].x
+              //arr[index-1].nulpunkt = param.nulpunkt
+
+             // arr.push({x:arr[index-1].x, y:arr[index-1].y,  dydx:arr[index-1].dydx, type:"L"})
+              param.y = arr[index-1].y+arr[index-1].dydx*(param.nulpunkt-arr[index-1].x)
+              out.push({x:param.nulpunkt,yleft:param.y ,y:param.y,  dydx:arr[index-1].dydx, type:"L",nulpunkt:param.nulpunkt})
+              //
+              break;
+
+            case "E":
+                
+                break;
+
+            default:
+              console.log("Hva fanden ???");
+                
+        }
+
+        } 
+        out.sort((a, b) => {return a.x - b.x})
+
+      })
+      return out
     },
   },
   mutations: {

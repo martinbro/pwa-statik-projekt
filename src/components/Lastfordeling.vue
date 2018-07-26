@@ -53,20 +53,20 @@ export default {
       return str;
     },
     linjelasterSVG: function() {
-      const arr = [];
-      const out = ["M 0,0"];
+      // const arr = [];
+      // const out = ["M 0,0"];
       var str = "M 0,0";
 
-      this.linjelaster.forEach(data => {
-        arr.push({ x: data.x0, y: data.val });
-        arr.push({ x: data.x1, y: -data.val });
-        // str += ` M${data.x0},0  V${data.val} H${data.x1} V0 `
-      });
-      arr.sort((a, b) => {return a.x - b.x});
+      // store.getters.getLinielastAggregeret.forEach(data => {
+      //   arr.push({ x: data.x, y: data.y });
+      //   //arr.push({ x: data.x1, y: data.val });
+      //   // str += ` M${data.x0},0  V${data.val} H${data.x1} V0 `
+      // });
+      // arr.sort((a, b) => {return a.x - b.x});
       //console.log("sorteret: ", arr);
 
-      arr.forEach(data => {
-        str += ` H ${data.x} v${data.y}`;
+       store.getters.getLinielastAggregeret.forEach(data => {
+        str += ` H ${data.x} V${data.y}`;
       });
 
       return str;
@@ -83,20 +83,6 @@ export default {
       return str;
     }
 
-    // beregnR () {
-    //   //finder R2 ved at tage moment om R1
-    //   var sum=0
-    //   const distR1 = this.reaktanter[0].x/100*this.L
-    //   this.punktlaster.forEach(element => {
-    //     sum += element.val*(element.x/100*this.L-distR1)
-    //   });
-    //   //R2*L+(F1*x1+F2*x2+...)=0 <=>R2*L+sum=0 <=>
-    //   const r2=-sum/this.L
-    //   //R1+R2+F1+F2+...=0 <=>
-    //   const r1= -(store.getters.getSumLast+r2)
-    //  return {R1val:r1,R2val:r2}
-
-    // }
   },
   methods: {
     increment() {
@@ -107,23 +93,25 @@ export default {
         x: Math.random() * 97
       });
       // store.commit('updateR',this.beregnR )
-      console.log(store.getters.getReaktanter);
+     // console.log(store.getters.getReaktanter);
     },
     decrement() {
+      const venstrep = Math.random()*80
+      const højrep = Math.random()*(100-venstrep) + venstrep
       store.commit("increment");
       store.commit("addLinjelaster", {
         navn: "f" + store.state.count + "a",
-        val: -1,
-        x0: 10,
-        x1: 30
+        val: -Math.random()*3-1,
+        x0: venstrep ,
+        x1: højrep
       });
-      store.commit("addLinjelaster", {
-        navn: "f" + store.state.count + "b",
-        val: -1,
-        x0: 50,
-        x1: 80
-      });
-      console.log(store.getters.getReaktanter);
+      // store.commit("addLinjelaster", {
+      //   navn: "f" + store.state.count + "b",
+      //   val: -1,
+      //   x0: 50,
+      //   x1: 80
+      // });
+      //console.log(store.getters.getReaktanter);
     }
   }
 };
